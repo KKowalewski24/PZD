@@ -1,0 +1,317 @@
+-------------------------------------------------------------------------------------------
+CZYSTE SKRYPTY
+
+--stworz tabele
+create "Books", "frequent", "rare"
+
+--dodaj dane
+put "Books", "row1", "frequent:title", "aaa"
+put "Books", "row1", "frequent:name", "bbb"
+put "Books", "row1", "frequent:surname", "ccc"
+put "Books", "row1", "rare:description", "ddd"
+put "Books", "row1", "rare:pages", "150"
+
+put "Books", "row2", "frequent:title", "eee"
+put "Books", "row2", "frequent:name", "fff"
+put "Books", "row2", "frequent:surname", "ggg"
+put "Books", "row2", "rare:description", "hhh"
+put "Books", "row2", "rare:pages", "300"
+
+put "Books", "row3", "frequent:title", "iii"
+put "Books", "row3", "frequent:name", "jjj"
+put "Books", "row3", "frequent:surname", "kkk"
+put "Books", "row3", "rare:description", "lll"
+put "Books", "row3", "rare:pages", "450"
+
+--policz liczbe wierszy
+count "Books"
+
+--Wyświetl dane z jednego (całego) wiersza.
+get "Books", "row1"
+
+--Wyświetl tylko tytuł i opis jednej książki.
+get "Books", "row1", "frequent:title", "rare:description"
+
+--Zmodyfikuj rok wydania dla jednej z książek. Wyświetl:
+alter "Books", NAME => "rare", VERSIONS => 3
+put "Books", "row1", "rare:pages", "888"
+
+--tylko nową wartość,
+get "Books", "row1", "rare:pages"
+
+--obie wartości.
+get "Books", "row1", {COLUMN => "rare:pages", VERSIONS => 2}
+
+--Dodaj nową rodzinę kolumn przechowującą dane dotyczące nazwy wydawnictwa i roku wydania.
+alter "Books", NAME => "release"
+
+--Uzupełnij przynajmniej część danych w tej rodzinie.
+put "Books", "row1", "release:name", "zzz"
+put "Books", "row1", "release:year", "2018"
+
+put "Books", "row2", "release:name", "xxx"
+put "Books", "row2", "release:year", "2019"
+
+put "Books", "row3", "release:name", "yyy"
+put "Books", "row3", "release:year", "2020"
+
+--Wyświetl wszystkie dane z tabeli.
+scan "Books"
+
+--Wyświetl tytuły i nazwiska autorów dla wszystkich książek.
+scan "Books", {COLUMNS => ["frequent:title", "frequent:surname"]}
+
+--Wyświetl tytuły i opisy pierwszych dwóch książek.
+scan "Books", {COLUMNS => ["frequent:title", "rare:description"], LIMIT => 2}
+
+--Wyświetl tylko tytuły wszystkich książek.
+scan "Books", {COLUMNS => "frequent:title"}
+
+--Usuń jedną z rodzin kolumn.
+alter "Books", "delete" => "release"
+
+--Usuń całą tabelę.
+disable "Books"
+drop "Books"
+
+
+-------------------------------------------------------------------------------------------
+PELNE SCRYPTY Z URUCHOMIENIAMI W TERMINALU
+
+
+Zdefiniuj strukturę tabeli Books przechowującą dane dotyczące
+książek: tytuł, opis, imię i nazwisko autora, liczbę stron.
+
+(1) Zastanów się, ile i jakie rodziny kolumn należy zdefiniować biorąc pod
+uwagę, że pewne dane są zazwyczaj przeszukiwane razem (np. imię i nazwisko autora).
+
+
+hbase(main):001:0> create "Books", "frequent", "rare"
+0 row(s) in 3.0180 seconds
+
+(3) Dodaj kilka rekordów do bazy.
+
+
+hbase(main):001:0> create "Books", "frequent", "rare"
+0 row(s) in 3.0180 seconds
+
+=> Hbase::Table - Books
+hbase(main):002:0> put "Books", "row1", "frequent:title", "aaa"
+0 row(s) in 0.5650 seconds
+
+hbase(main):003:0> put "Books", "row1", "frequent:name", "bbb"
+0 row(s) in 0.0210 seconds
+
+hbase(main):004:0> put "Books", "row1", "frequent:surname", "ccc"
+0 row(s) in 0.0150 seconds
+
+hbase(main):005:0> put "Books", "row1", "rare:description", "ddd"
+0 row(s) in 0.0180 seconds
+
+hbase(main):006:0> put "Books", "row1", "rare:pages", "150"
+0 row(s) in 0.0180 seconds
+
+hbase(main):007:0>
+hbase(main):008:0* put "Books", "row2", "frequent:title", "eee"
+0 row(s) in 0.0270 seconds
+
+hbase(main):009:0> put "Books", "row2", "frequent:name", "fff"
+0 row(s) in 0.0130 seconds
+
+hbase(main):010:0> put "Books", "row2", "frequent:surname", "ggg"
+0 row(s) in 0.0130 seconds
+
+hbase(main):011:0> put "Books", "row2", "rare:description", "hhh"
+0 row(s) in 0.0100 seconds
+
+hbase(main):012:0> put "Books", "row2", "rare:pages", "300"
+0 row(s) in 0.0110 seconds
+
+hbase(main):013:0>
+hbase(main):014:0* put "Books", "row3", "frequent:title", "iii"
+0 row(s) in 0.0110 seconds
+
+hbase(main):015:0> put "Books", "row3", "frequent:name", "jjj"
+0 row(s) in 0.0090 seconds
+
+hbase(main):016:0> put "Books", "row3", "frequent:surname", "kkk"
+0 row(s) in 0.0090 seconds
+
+hbase(main):017:0> put "Books", "row3", "rare:description", "lll"
+0 row(s) in 0.0110 seconds
+
+hbase(main):018:0> put "Books", "row3", "rare:pages", "450"
+0 row(s) in 0.0310 seconds
+
+(4) Policz liczbę wierszy.
+
+hbase(main):019:0> count "Books"
+3 row(s) in 0.1360 seconds
+
+=> 3
+
+(5) Wyświetl dane z jednego (całego) wiersza.
+
+hbase(main):020:0> get "Books", "row1"
+COLUMN                    CELL
+ frequent:name            timestamp=1589809664058, value=bbb
+ frequent:surname         timestamp=1589809664139, value=ccc
+ frequent:title           timestamp=1589809663735, value=aaa
+ rare:description         timestamp=1589809664224, value=ddd
+ rare:pages               timestamp=1589809664282, value=150
+5 row(s) in 0.0730 seconds
+
+
+(6) Wyświetl tylko tytuł i opis jednej książki.
+
+hbase(main):021:0> get "Books", "row1", "frequent:title", "rare:description"
+COLUMN                    CELL
+ frequent:title           timestamp=1589809663735, value=aaa
+ rare:description         timestamp=1589809664224, value=ddd
+2 row(s) in 0.0640 seconds
+
+
+(7) Zmodyfikuj rok wydania dla jednej z książek. Wyświetl:
+
+alter "Books", NAME => "rare", VERSIONS => 3
+put "Books", "row1", "rare:pages", "888"
+
+hbase(main):022:0> alter "Books", NAME => "rare", VERSIONS => 3
+Updating all regions with the new schema...
+0/1 regions updated.
+1/1 regions updated.
+Done.
+0 row(s) in 3.7620 seconds
+
+hbase(main):025:0* put "Books", "row1", "rare:pages", "888"
+0 row(s) in 0.0310 seconds
+
+
+(a) tylko nową wartość,
+
+hbase(main):027:0* get "Books", "row1", "rare:pages"
+COLUMN                    CELL
+ rare:pages               timestamp=1589809907147, value=888
+1 row(s) in 0.1550 seconds
+
+(b) obie wartości.
+
+hbase(main):030:0> get "Books", "row1", {COLUMN => "rare:pages", VERSIONS => 2}
+COLUMN                    CELL
+ rare:pages               timestamp=1589809907147, value=888
+ rare:pages               timestamp=1589809664282, value=150
+2 row(s) in 0.0210 seconds
+
+
+(8) Dodaj nową rodzinę kolumn przechowującą dane dotyczące nazwy wydawnictwa i roku wydania.
+
+hbase(main):031:0> alter "Books", NAME => "release"
+Updating all regions with the new schema...
+0/1 regions updated.
+1/1 regions updated.
+Done.
+0 row(s) in 3.1220 seconds
+
+
+(9) Uzupełnij przynajmniej część danych w tej rodzinie.
+
+hbase(main):032:0> put "Books", "row1", "release:name", "zzz"
+0 row(s) in 0.0170 seconds
+
+hbase(main):033:0> put "Books", "row1", "release:year", "2018"
+0 row(s) in 0.0110 seconds
+
+hbase(main):034:0>
+hbase(main):035:0* put "Books", "row2", "release:name", "xxx"
+0 row(s) in 0.0080 seconds
+
+hbase(main):036:0> put "Books", "row2", "release:year", "2019"
+0 row(s) in 0.0150 seconds
+
+hbase(main):037:0>
+hbase(main):038:0* put "Books", "row3", "release:name", "yyy"
+0 row(s) in 0.0050 seconds
+
+hbase(main):039:0> put "Books", "row3", "release:year", "2020"
+0 row(s) in 0.0110 seconds
+
+
+(10) Wyświetl wszystkie dane z tabeli.
+
+hbase(main):040:0> scan "Books"
+ROW                       COLUMN+CELL
+ row1                     column=frequent:name, timestamp=1589809664058, value=bbb
+ row1                     column=frequent:surname, timestamp=1589809664139, value=ccc
+ row1                     column=frequent:title, timestamp=1589809663735, value=aaa
+ row1                     column=rare:description, timestamp=1589809664224, value=ddd
+ row1                     column=rare:pages, timestamp=1589809907147, value=888
+ row1                     column=release:name, timestamp=1589810496113, value=zzz
+ row1                     column=release:year, timestamp=1589810496161, value=2018
+ row2                     column=frequent:name, timestamp=1589809664418, value=fff
+ row2                     column=frequent:surname, timestamp=1589809664474, value=ggg
+ row2                     column=frequent:title, timestamp=1589809664350, value=eee
+ row2                     column=rare:description, timestamp=1589809664523, value=hhh
+ row2                     column=rare:pages, timestamp=1589809664567, value=300
+ row2                     column=release:name, timestamp=1589810496215, value=xxx
+ row2                     column=release:year, timestamp=1589810496258, value=2019
+ row3                     column=frequent:name, timestamp=1589809664699, value=jjj
+ row3                     column=frequent:surname, timestamp=1589809664742, value=kkk
+ row3                     column=frequent:title, timestamp=1589809664638, value=iii
+ row3                     column=rare:description, timestamp=1589809664785, value=lll
+ row3                     column=rare:pages, timestamp=1589809666213, value=450
+ row3                     column=release:name, timestamp=1589810496312, value=yyy
+ row3                     column=release:year, timestamp=1589810497431, value=2020
+3 row(s) in 0.1140 seconds
+
+
+(11) Wyświetl tytuły i nazwiska autorów dla wszystkich książek.
+
+hbase(main):041:0> scan "Books", {COLUMNS => ["frequent:title", "frequent:surname"]}
+ROW                       COLUMN+CELL
+ row1                     column=frequent:surname, timestamp=1589809664139, value=ccc
+ row1                     column=frequent:title, timestamp=1589809663735, value=aaa
+ row2                     column=frequent:surname, timestamp=1589809664474, value=ggg
+ row2                     column=frequent:title, timestamp=1589809664350, value=eee
+ row3                     column=frequent:surname, timestamp=1589809664742, value=kkk
+ row3                     column=frequent:title, timestamp=1589809664638, value=iii
+3 row(s) in 0.0460 seconds
+
+
+(12) Wyświetl tytuły i opisy pierwszych dwóch książek.
+
+hbase(main):042:0> scan "Books", {COLUMNS => ["frequent:title", "rare:description"], LIMIT => 2}
+ROW                       COLUMN+CELL
+ row1                     column=frequent:title, timestamp=1589809663735, value=aaa
+ row1                     column=rare:description, timestamp=1589809664224, value=ddd
+ row2                     column=frequent:title, timestamp=1589809664350, value=eee
+ row2                     column=rare:description, timestamp=1589809664523, value=hhh
+2 row(s) in 0.0510 seconds
+
+
+(13) Wyświetl tylko tytuły wszystkich książek.
+
+hbase(main):043:0> scan "Books", {COLUMNS => "frequent:title"}
+ROW                       COLUMN+CELL
+ row1                     column=frequent:title, timestamp=1589809663735, value=aaa
+ row2                     column=frequent:title, timestamp=1589809664350, value=eee
+ row3                     column=frequent:title, timestamp=1589809664638, value=iii
+3 row(s) in 0.0370 seconds
+
+
+(14) Usuń jedną z rodzin kolumn.
+
+hbase(main):045:0> alter "Books", "delete" => "release"
+Updating all regions with the new schema...
+0/1 regions updated.
+1/1 regions updated.
+Done.
+0 row(s) in 3.3540 seconds
+
+(15) Usuń całą tabelę.
+
+hbase(main):047:0> disable "Books"
+0 row(s) in 2.3160 seconds
+
+hbase(main):048:0> drop "Books"
+0 row(s) in 1.3060 seconds
+

@@ -1,0 +1,172 @@
+-------------------------------------------------------------------------------------------
+CZYSTE SKRYPTY
+
+--Uruchom powłokę HBase za pomocą polecenia:
+
+hbase shell
+status
+exit
+
+--Utwórz nową tabelę zgodnie ze składnią
+create 'nazwa_tabeli','nazwa_rodziny_1', ['nazwa_rodziny_n']
+
+create 'karwowski', 'kowalewski'
+
+-- Wyświetl informację o utworzonych tabelach zgodnie ze składnią list ['nazwa_tabeli']
+
+list 'karwowski'
+
+--Wyświetl strukturę tabeli zgodnie ze składnią describe 'nazwa_tabeli'
+
+describe 'karwowski'
+
+--Wstaw dane do tabeli zgodnie ze składnią:
+ put 'nazwa tabeli', 'identyfikator wiersza', 'nazwa rodziny: nazwa:kolumny', 'wartosc'
+
+put 'karwowski', 'abc', 'kowalewski:kol1', 'jan'
+scan 'karwowski'
+
+--Dodaj kilka wierszy z wartościami w kilku kolumnach
+put 'karwowski', 'cde', 'kowalewski:kol1', 'kamil'
+put 'karwowski', 'dzien', 'kowalewski:kol2', 'piatek_weekendu_poczatek'
+put 'karwowski', 'napis', 'kowalewski:kol2', 'cos_tam'
+
+--Wyświetl zawartość tabeli zgodnie ze składnią scan 'nazwa_tabeli'
+scan 'karwowski'
+
+--Za pomocą polecenia put zaktualizuj wybrane wartości
+put 'karwowski', 'cde', 'kowalewski:kol1', 'kamil_08052020'
+
+--Pobierz informacje o aktualizacji wybranego wiersza za
+pomocą polecenia get 'nazwa_tabeli','identyfikator_wiersza'
+
+get 'karwowski', 'cde'
+get 'karwowski', 'napis_zmieniony'
+
+
+-- Wyłącz i usuń tabelę za pomocą poleceń disable oraz drop
+disable 'karwowski'
+drop 'karwowski'
+
+-------------------------------------------------------------------------------------------
+PELNE SCRYPTY Z URUCHOMIENIAMI W TERMINALU
+
+1. Uruchom powłokę HBase za pomocą polecenia:
+[cloudera@quickstart /]$ hbase shell
+2020-05-08 14:25:27,027 INFO  [main] Configuration.deprecation: hadoop.native.lib is deprecated. Instead, use io.native.lib.available
+HBase Shell; enter 'help<RETURN>' for list of supported commands.
+Type "exit<RETURN>" to leave the HBase Shell
+Version 1.2.0-cdh5.7.0, rUnknown, Wed Mar 23 11:39:14 PDT 2016
+
+hbase(main):001:0> status
+1 active master, 0 backup masters, 1 servers, 0 dead, 2.0000 average load
+
+hbase(main):002:0> exit
+[cloudera@quickstart /]$
+
+
+2. Utwórz nową tabelę zgodnie ze składnią create 'nazwa_tabeli','nazwa_rodziny_1', ['nazwa_rodziny_n']
+Przykład
+create 't1', 'cf1'
+create 't1','cf1','cf2','cf3'
+
+hbase(main):003:0> create 'karwowski', 'kowalewski'
+0 row(s) in 2.7230 seconds
+
+=> Hbase::Table - karwowski
+
+
+3. Wyświetl informację o utworzonych tabelach zgodnie ze składnią list ['nazwa_tabeli']
+Przykłady:
+list 't1'
+list
+
+hbase(main):005:0> list 'karwowski'
+TABLE
+karwowski
+1 row(s) in 0.0290 seconds
+
+=> ["karwowski"]
+
+
+4. Wyświetl strukturę tabeli zgodnie ze składnią describe 'nazwa_tabeli'
+Przykład:
+describe 't1'
+
+hbase(main):006:0> describe 'karwowski'
+Table karwowski is ENABLED
+karwowski
+COLUMN FAMILIES DESCRIPTION
+{NAME => 'kowalewski', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '
+0', VERSIONS => '1', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CE
+LLS => 'FALSE', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}
+1 row(s) in 0.2360 seconds
+
+
+5. Wstaw dane do tabeli zgodnie ze składnią: put 'nazwa tabeli', 'identyfikator wiersza', 'nazwa rodziny: nazwa:kolumny', 'wartosc'
+Przykład:
+put 't1', 'r1', 'cf1:kol1', 'wart1'
+
+hbase(main):007:0> put 'karwowski', 'abc', 'kowalewski:kol1', 'jan'
+0 row(s) in 0.1560 seconds
+
+hbase(main):010:0> scan 'karwowski'
+ROW                       COLUMN+CELL
+ abc                      column=kowalewski:kol1, timestamp=1588948619929, value=jan
+1 row(s) in 0.0530 seconds
+
+
+6. Dodaj kilka wierszy z wartościami w kilku kolumnach
+hbase(main):011:0> put 'karwowski', 'cde', 'kowalewski:kol1', 'kamil'
+0 row(s) in 0.0140 seconds
+
+hbase(main):012:0> put 'karwowski', 'dzien', 'kowalewski:kol2', 'piatek_weekendu_poczatek'
+0 row(s) in 0.0100 seconds
+
+hbase(main):014:0> put 'karwowski', 'napis', 'kowalewski:kol2', 'cos_tam'
+0 row(s) in 0.0100 seconds
+
+
+7. Wyświetl zawartość tabeli zgodnie ze składnią scan 'nazwa_tabeli'
+Przykład:
+scan 't1'
+
+hbase(main):015:0> scan 'karwowski'
+ROW                       COLUMN+CELL
+ abc                      column=kowalewski:kol1, timestamp=1588948619929, value=jan
+ cde                      column=kowalewski:kol1, timestamp=1588949286899, value=kamil
+ dzien                    column=kowalewski:kol2, timestamp=1588949342264, value=piatek_weekendu_p
+                          oczatek
+ napis                    column=kowalewski:kol2, timestamp=1588949474957, value=cos_tam
+4 row(s) in 0.0390 seconds
+
+
+8. Za pomocą polecenia put zaktualizuj wybrane wartości
+hbase(main):016:0> put 'karwowski', 'cde', 'kowalewski:kol1', 'kamil_08052020'
+0 row(s) in 0.0120 seconds
+
+hbase(main):017:0> put 'karwowski', 'napis_zmieniony', 'kowalewski:kol2', 'cos_tam'
+0 row(s) in 0.0120 seconds
+
+
+9. Pobierz informacje o aktualizacji wybranego wiersza za pomocą polecenia get 'nazwa_tabeli','identyfikator_wiersza'
+Przykład:
+get 't1','wiersz3'
+
+hbase(main):018:0> get 'karwowski', 'cde'
+COLUMN                    CELL
+ kowalewski:kol1          timestamp=1588950717119, value=kamil_08052020
+1 row(s) in 0.0320 seconds
+
+hbase(main):019:0> get 'karwowski', 'napis_zmieniony'
+COLUMN                    CELL
+ kowalewski:kol2          timestamp=1588950733007, value=cos_tam
+1 row(s) in 0.0150 seconds
+
+10. Wyłącz i usuń tabelę za pomocą poleceń disable oraz drop
+
+hbase(main):020:0> disable 'karwowski'
+0 row(s) in 2.4420 seconds
+
+hbase(main):021:0> drop 'karwowski'
+0 row(s) in 2.3760 seconds

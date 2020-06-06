@@ -1,0 +1,391 @@
+-------------------------------------------------------------------------------------------
+CZYSTE SKRYPTY
+
+--Zdefiniuj tabelę contacts i uzupełnij danymi zgodnie z poniższym
+schematem (identity, private, office to rodziny kolumn)
+
+
+create 'nazwa_tabeli','nazwa_rodziny_1', ['nazwa_rodziny_n']
+put 'nazwa tabeli', 'identyfikator wiersza', 'nazwa rodziny: nazwa kolumny', 'wartosc'
+
+
+create 'contacts', 'identity', 'private', 'office'
+
+put 'contacts', '1', 'identity: name', 'Hinnerk'
+put 'contacts', '1', 'identity: birthday', '31.12.1995'
+put 'contacts', '1', 'private: phone', '111'
+put 'contacts', '1', 'private: mail', ''
+put 'contacts', '1', 'private: address', 'A Street 1'
+put 'contacts', '1', 'office: phone', ''
+put 'contacts', '1', 'office: mail', 'h@h.org'
+put 'contacts', '1', 'office: address', ''
+
+put 'contacts', '2', 'identity: name', 'Karl'
+put 'contacts', '2', 'identity: birthday', '1.1.1990'
+put 'contacts', '2', 'private: phone', '222'
+put 'contacts', '2', 'private: mail', ''
+put 'contacts', '2', 'private: address', ''
+put 'contacts', '2', 'office: phone', ''
+put 'contacts', '2', 'office: mail', ''
+put 'contacts', '2', 'office: address', ''
+
+put 'contacts', '3', 'identity: name', 'Hanna'
+put 'contacts', '3', 'identity: birthday', '2.2.1980'
+put 'contacts', '3', 'private: phone', ''
+put 'contacts', '3', 'private: mail', 'h@h.com'
+put 'contacts', '3', 'private: address', 'B Street 2'
+put 'contacts', '3', 'office: phone', '444'
+put 'contacts', '3', 'office: mail', ''
+put 'contacts', '3', 'office: address', 'A Ave 1'
+
+put 'contacts', '4', 'identity: name', 'mom'
+put 'contacts', '4', 'identity: birthday', '3.3.1970'
+put 'contacts', '4', 'private: phone', '333'
+put 'contacts', '4', 'private: mail', 'm@m.com'
+put 'contacts', '4', 'private: address', 'B Street 3'
+put 'contacts', '4', 'office: phone', '555'
+put 'contacts', '4', 'office: mail', 'm@m.gov'
+put 'contacts', '4', 'office: address', 'B Ave 2'
+
+scan 'contacts'
+
+--Dla rodziny private ustaw liczbę wersji na wartość 3.
+
+alter 'contacts', NAME => 'private', VERSIONS => 3
+describe 'contacts'
+
+--Wstaw nową wartość adresu e-mail dla Hanny: hanna@m.com
+put 'contacts', '3', 'private: mail', 'hanna@m.com'
+
+--Wyświetl nowy adres mailowy Hanny.
+get 'contacts', '3', 'private: mail'
+
+--Wyświetl obie wersje adresu mailowego Hanny.
+get 'contacts', '3', {COLUMN => 'private: mail', VERSIONS => 3}
+
+--Przeszukaj tabelę contacts pod kątem występowania w adresie ciągu „B Street”.
+Skorzystaj z filtru (SingleColumnValueFilter oraz opcji binaryprefix).
+scan 'contacts', { COLUMNS => 'private: address', FILTER => "ValueFilter( =, 'binaryprefix:B Street' )" }
+
+
+-------------------------------------------------------------------------------------------
+PELNE SCRYPTY Z URUCHOMIENIAMI W TERMINALU
+
+1. Zdefiniuj tabelę contacts i uzupełnij danymi zgodnie z poniższym schematem (identity, private, office to rodziny kolumn)
+
+hbase(main):017:0> create 'contacts', 'identity', 'private', 'office'
+0 row(s) in 1.2780 seconds
+
+=> Hbase::Table - contacts
+
+hbase(main):018:0> put 'contacts', '1', 'identity: name', 'Hinnerk'
+0 row(s) in 0.0570 seconds
+
+hbase(main):019:0> put 'contacts', '1', 'identity: birthday', '31.12.1995'
+0 row(s) in 0.0080 seconds
+
+hbase(main):020:0> put 'contacts', '1', 'private: phone', '111'
+0 row(s) in 0.0210 seconds
+
+hbase(main):021:0> put 'contacts', '1', 'private: mail', ''
+0 row(s) in 0.0090 seconds
+
+hbase(main):022:0> put 'contacts', '1', 'private: address', 'A Street 1'
+0 row(s) in 0.0080 seconds
+
+hbase(main):023:0> put 'contacts', '1', 'office: phone', ''
+0 row(s) in 0.0070 seconds
+
+hbase(main):024:0> put 'contacts', '1', 'office: mail', 'h@h.org'
+0 row(s) in 0.0090 seconds
+
+hbase(main):025:0> put 'contacts', '1', 'office: address', ''
+0 row(s) in 0.0150 seconds
+
+hbase(main):026:0> put 'contacts', '2', 'identity: name', 'Karl'
+0 row(s) in 0.0410 seconds
+
+hbase(main):027:0> put 'contacts', '2', 'identity: birthday', '1.1.1990'
+0 row(s) in 0.0110 seconds
+
+hbase(main):028:0> put 'contacts', '2', 'private: phone', '222'
+0 row(s) in 0.0070 seconds
+
+hbase(main):029:0> put 'contacts', '2', 'private: mail', ''
+0 row(s) in 0.0090 seconds
+
+hbase(main):030:0> put 'contacts', '2', 'private: address', ''
+0 row(s) in 0.0060 seconds
+
+hbase(main):031:0> put 'contacts', '2', 'office: phone', ''
+0 row(s) in 0.0220 seconds
+
+hbase(main):032:0> put 'contacts', '2', 'office: mail', ''
+0 row(s) in 0.0070 seconds
+
+hbase(main):033:0> put 'contacts', '2', 'office: address', ''
+0 row(s) in 0.0220 seconds
+
+hbase(main):034:0> put 'contacts', '3', 'identity: name', 'Hanna'
+0 row(s) in 0.0500 seconds
+
+hbase(main):035:0> put 'contacts', '3', 'identity: birthday', '2.2.1980'
+0 row(s) in 0.0130 seconds
+
+hbase(main):036:0> put 'contacts', '3', 'private: phone', ''
+0 row(s) in 0.0090 seconds
+
+hbase(main):037:0> put 'contacts', '3', 'private: mail', 'h@h.com'
+0 row(s) in 0.0170 seconds
+
+hbase(main):038:0> put 'contacts', '3', 'private: address', 'B Street 2'
+0 row(s) in 0.0090 seconds
+
+hbase(main):039:0> put 'contacts', '3', 'office: phone', '444'
+0 row(s) in 0.0200 seconds
+
+hbase(main):040:0> put 'contacts', '3', 'office: mail', ''
+0 row(s) in 0.0060 seconds
+
+hbase(main):041:0> put 'contacts', '3', 'office: address', 'A Ave 1'
+0 row(s) in 0.0190 seconds
+
+hbase(main):042:0> put 'contacts', '4', 'identity: name', 'mom'
+0 row(s) in 0.0170 seconds
+
+hbase(main):043:0> put 'contacts', '4', 'identity: birthday', '3.3.1970'
+0 row(s) in 0.0090 seconds
+
+hbase(main):044:0> put 'contacts', '4', 'private: phone', '333'
+0 row(s) in 0.0060 seconds
+
+hbase(main):045:0> put 'contacts', '4', 'private: mail', 'm@m.com'
+0 row(s) in 0.0100 seconds
+
+hbase(main):046:0> put 'contacts', '4', 'private: address', 'B Street 3'
+0 row(s) in 0.0070 seconds
+
+hbase(main):047:0> put 'contacts', '4', 'office: phone', '555'
+0 row(s) in 0.0080 seconds
+
+hbase(main):048:0> put 'contacts', '4', 'office: mail', 'm@m.gov'
+0 row(s) in 0.0090 seconds
+
+hbase(main):049:0> put 'contacts', '4', 'office: address', 'B Ave 2'
+0 row(s) in 0.0240 seconds
+
+hbase(main):050:0> scan 'contacts'
+ROW                       COLUMN+CELL
+ 1                        column=identity: birthday, timestamp=1589015064933, value=31.12.1995
+ 1                        column=identity: name, timestamp=1589015064853, value=Hinnerk
+ 1                        column=office: address, timestamp=1589015066236, value=
+ 1                        column=office: mail, timestamp=1589015065137, value=h@h.org
+ 1                        column=office: phone, timestamp=1589015065097, value=
+ 1                        column=private: address, timestamp=1589015065060, value=A Street 1
+ 1                        column=private: mail, timestamp=1589015065019, value=
+ 1                        column=private: phone, timestamp=1589015064982, value=111
+ 2                        column=identity: birthday, timestamp=1589015086875, value=1.1.1990
+ 2                        column=identity: name, timestamp=1589015086828, value=Karl
+ 2                        column=office: address, timestamp=1589015088565, value=
+ 2                        column=office: mail, timestamp=1589015087150, value=
+ 2                        column=office: phone, timestamp=1589015087095, value=
+ 2                        column=private: address, timestamp=1589015087046, value=
+ 2                        column=private: mail, timestamp=1589015086984, value=
+ 2                        column=private: phone, timestamp=1589015086914, value=222
+ 3                        column=identity: birthday, timestamp=1589015117864, value=2.2.1980
+ 3                        column=identity: name, timestamp=1589015117774, value=Hanna
+ 3                        column=office: address, timestamp=1589015119559, value=A Ave 1
+ 3                        column=office: mail, timestamp=1589015118154, value=
+ 3                        column=office: phone, timestamp=1589015118094, value=444
+ 3                        column=private: address, timestamp=1589015118049, value=B Street 2
+ 3                        column=private: mail, timestamp=1589015117989, value=h@h.com
+ 3                        column=private: phone, timestamp=1589015117915, value=
+ 4                        column=identity: birthday, timestamp=1589015141696, value=3.3.1970
+ 4                        column=identity: name, timestamp=1589015141647, value=mom
+ 4                        column=office: address, timestamp=1589015143155, value=B Ave 2
+ 4                        column=office: mail, timestamp=1589015141886, value=m@m.gov
+ 4                        column=office: phone, timestamp=1589015141846, value=555
+ 4                        column=private: address, timestamp=1589015141812, value=B Street 3
+ 4                        column=private: mail, timestamp=1589015141775, value=m@m.com
+ 4                        column=private: phone, timestamp=1589015141739, value=333
+4 row(s) in 0.1830 seconds
+
+
+2. Dla rodziny private ustaw liczbę wersji na wartość 3.
+
+hbase(main):053:0> alter 'contacts', NAME => 'private', VERSIONS => 3
+Updating all regions with the new schema...
+0/1 regions updated.
+1/1 regions updated.
+Done.
+0 row(s) in 3.0140 seconds
+
+hbase(main):054:0> describe 'contacts'
+Table contacts is ENABLED
+contacts
+COLUMN FAMILIES DESCRIPTION
+{NAME => 'identity', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0'
+, VERSIONS => '1', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CELL
+S => 'FALSE', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}
+{NAME => 'office', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0',
+VERSIONS => '1', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CELLS
+=> 'FALSE', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}
+{NAME => 'private', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0',
+ VERSIONS => '3', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CELLS
+ => 'FALSE', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}
+3 row(s) in 0.0650 seconds
+
+
+3. Wstaw nową wartość adresu e-mail dla Hanny: hanna@m.com
+hbase(main):058:0> put 'contacts', '3', 'private: mail', 'hanna@m.com'
+0 row(s) in 0.0100 seconds
+
+
+4. Wyświetl nowy adres mailowy Hanny.
+
+hbase(main):059:0> get 'contacts', '3', 'private: mail'
+COLUMN                    CELL
+ private: mail            timestamp=1589015739373, value=hanna@m.com
+1 row(s) in 0.0220 seconds
+
+
+5. Wyświetl obie wersje adresu mailowego Hanny.
+
+hbase(main):060:0> get 'contacts', '3', {COLUMN => 'private: mail', VERSIONS => 3}
+COLUMN                    CELL
+ private: mail            timestamp=1589015739373, value=hanna@m.com
+ private: mail            timestamp=1589015117989, value=h@h.com
+2 row(s) in 0.0270 seconds
+
+
+6. Przeszukaj tabelę contacts pod kątem występowania w adresie ciągu „B Street”. Skorzystaj z filtru (SingleColumnValueFilter oraz opcji binaryprefix).
+
+hbase(main):063:0> scan 'contacts', { COLUMNS => 'private: address', FILTER => "ValueFilter( =, 'binaryprefix:B Street' )" }
+ROW                       COLUMN+CELL
+ 3                        column=private: address, timestamp=1589015118049, value=B Street 2
+ 4                        column=private: address, timestamp=1589015141812, value=B Street 3
+2 row(s) in 0.0580 seconds
+
+
+7. Przećwicz wstawianie i wyświetlanie danych w różnych konfiguracjach.
+
+put 'contacts', '5', 'identity: name_abc', 'cde'
+put 'contacts', '6', 'identity: age_abc', '28'
+put 'contacts', '7', 'identity: city_abc', 'lodz'
+
+get 'contacts', '5', 'identity: name_abc'
+get 'contacts', '6', 'identity: age_abc'
+get 'contacts', '7', 'identity: city_abc'
+
+scan 'contacts'
+describe 'contacts'
+list 'contacts'
+
+hbase(main):069:0> put 'contacts', '5', 'identity: name_abc', 'cde'
+0 row(s) in 0.0130 seconds
+
+hbase(main):070:0> put 'contacts', '6', 'identity: age_abc', '28'
+0 row(s) in 0.0090 seconds
+
+hbase(main):071:0> put 'contacts', '7', 'identity: city_abc', 'lodz'
+0 row(s) in 0.0050 seconds
+
+hbase(main):072:0>
+hbase(main):073:0* get 'contacts', '5', 'identity: name_abc'
+COLUMN                    CELL
+ identity: name_abc       timestamp=1589017183754, value=cde
+1 row(s) in 0.0080 seconds
+
+hbase(main):074:0> get 'contacts', '6', 'identity: age_abc'
+COLUMN                    CELL
+ identity: age_abc        timestamp=1589017183795, value=28
+1 row(s) in 0.0090 seconds
+
+hbase(main):075:0> get 'contacts', '7', 'identity: city_abc'
+COLUMN                    CELL
+ identity: city_abc       timestamp=1589017183832, value=lodz
+1 row(s) in 0.0100 seconds
+
+hbase(main):076:0>
+hbase(main):077:0* scan 'contacts'
+ROW                       COLUMN+CELL
+ 1                        column=identity: birthday, timestamp=1589015064933, value=31.12.1995
+ 1                        column=identity: name, timestamp=1589015064853, value=Hinnerk
+ 1                        column=identity: name_ZMIANA, timestamp=1589016905558, value=Hinnerk
+ 1                        column=office: address, timestamp=1589015066236, value=
+ 1                        column=office: mail, timestamp=1589015065137, value=h@h.org
+ 1                        column=office: phone, timestamp=1589015065097, value=
+ 1                        column=private: address, timestamp=1589015065060, value=A Street 1
+ 1                        column=private: mail, timestamp=1589015065019, value=
+ 1                        column=private: phone, timestamp=1589015064982, value=111
+ 2                        column=identity: birthday, timestamp=1589015086875, value=1.1.1990
+ 2                        column=identity: name, timestamp=1589015086828, value=Karl
+ 2                        column=office: address, timestamp=1589015088565, value=
+ 2                        column=office: mail, timestamp=1589015087150, value=
+ 2                        column=office: phone, timestamp=1589015087095, value=
+ 2                        column=private: address, timestamp=1589015087046, value=
+ 2                        column=private: mail, timestamp=1589015086984, value=
+ 2                        column=private: phone, timestamp=1589015086914, value=222
+ 3                        column=identity: birthday, timestamp=1589015117864, value=2.2.1980
+ 3                        column=identity: name, timestamp=1589015117774, value=Hanna
+ 3                        column=office: address, timestamp=1589015119559, value=A Ave 1
+ 3                        column=office: mail, timestamp=1589015118154, value=
+ 3                        column=office: phone, timestamp=1589015118094, value=444
+ 3                        column=private: address, timestamp=1589015118049, value=B Street 2
+ 3                        column=private: mail, timestamp=1589015739373, value=hanna@m.com
+ 3                        column=private: phone, timestamp=1589015117915, value=
+ 4                        column=identity: birthday, timestamp=1589015141696, value=3.3.1970
+ 4                        column=identity: name, timestamp=1589015141647, value=mom
+ 4                        column=office: address, timestamp=1589015143155, value=B Ave 2
+ 4                        column=office: mail, timestamp=1589015141886, value=m@m.gov
+ 4                        column=office: phone, timestamp=1589015141846, value=555
+ 4                        column=private: address, timestamp=1589015141812, value=B Street 3
+ 4                        column=private: mail, timestamp=1589015141775, value=m@m.com
+ 4                        column=private: phone, timestamp=1589015141739, value=333
+ 5                        column=identity: name_abc, timestamp=1589017183754, value=cde
+ 6                        column=identity: age_abc, timestamp=1589017183795, value=28
+ 7                        column=identity: city_abc, timestamp=1589017183832, value=lodz
+7 row(s) in 0.1210 seconds
+
+hbase(main):078:0> describe 'contacts'
+Table contacts is ENABLED
+contacts
+COLUMN FAMILIES DESCRIPTION
+{NAME => 'identity', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0'
+, VERSIONS => '1', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CELL
+S => 'FALSE', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}
+{NAME => 'office', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0',
+VERSIONS => '1', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CELLS
+=> 'FALSE', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}
+{NAME => 'private', DATA_BLOCK_ENCODING => 'NONE', BLOOMFILTER => 'ROW', REPLICATION_SCOPE => '0',
+ VERSIONS => '3', COMPRESSION => 'NONE', MIN_VERSIONS => '0', TTL => 'FOREVER', KEEP_DELETED_CELLS
+ => 'FALSE', BLOCKSIZE => '65536', IN_MEMORY => 'false', BLOCKCACHE => 'true'}
+3 row(s) in 0.0590 seconds
+
+hbase(main):079:0> list 'contacts'
+TABLE
+contacts
+1 row(s) in 0.0560 seconds
+
+=> ["contacts"]
+
+
+8. Sprawdź, jak zachowuje się baza w sytuacji, gdy użytkownik zrobi "literówkę" w nazwie kolumny. Jak wyjaśniłbyś takie zachowanie bazy?
+
+Dla get nic sie nie wyswietli
+hbase(main):064:0> get 'contacts', '3', 'private: mail_ZMIANA'
+COLUMN                    CELL
+0 row(s) in 0.0070 seconds
+
+Dla put zostanie utworzona nowa kolumna
+hbase(main):066:0> put 'contacts', '1', 'identity: name_ZMIANA', 'Hinnerk'
+0 row(s) in 0.0240 seconds
+
+hbase(main):067:0> get 'contacts', '1', 'identity: name_ZMIANA'
+COLUMN                    CELL
+ identity: name_ZMIANA    timestamp=1589016905558, value=Hinnerk
+1 row(s) in 0.0110 seconds
+
+
+disable 'contacts'
+drop 'contacts'

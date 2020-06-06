@@ -1,0 +1,38 @@
+
+------------------------------------------------------------------------
+
+create "przychodnia", "fullname", "address", "visit"
+
+put 'przychodnia', 'r1', 'fullname:name', 'Emma'
+put 'przychodnia', 'r1', 'fullname:surname', 'King'
+put 'przychodnia', 'r1', 'address:street', ''
+put 'przychodnia', 'r1', 'address:zipcode', ''
+put 'przychodnia', 'r1', 'address:city', ''
+put 'przychodnia', 'r1', 'visit:day', '1.07.2020'
+put 'przychodnia', 'r1', 'visit:hour', '18:00'
+
+put 'przychodnia', 'r2', 'fullname:name', 'Mike'
+put 'przychodnia', 'r2', 'fullname:surname', 'Tomson'
+put 'przychodnia', 'r2', 'address:street', '1st'
+put 'przychodnia', 'r2', 'address:zipcode', '90034'
+put 'przychodnia', 'r2', 'address:city', 'LA'
+put 'przychodnia', 'r2', 'visit:day', '21.07.2020'
+put 'przychodnia', 'r2', 'visit:hour', '8:00'
+
+put 'przychodnia', 'r3', 'fullname:name', 'Rita'
+put 'przychodnia', 'r3', 'fullname:surname', 'King'
+put 'przychodnia', 'r3', 'address:street', ''
+put 'przychodnia', 'r3', 'address:zipcode', ''
+put 'przychodnia', 'r3', 'address:city', ''
+put 'przychodnia', 'r3', 'visit:day', '31.07.2020'
+put 'przychodnia', 'r3', 'visit:hour', '8:00'
+
+alter "przychodnia", NAME => "visit", VERSIONS => 3
+put "przychodnia", "r2", "visit:day", "10.07.2020"
+
+scan 'przychodnia', {COLUMNS=>['visit:day', 'visit:hour'], LIMIT=>2}
+
+scan 'przychodnia', { FILTER => "SingleColumnValueFilter('fullname', 'surname', =, 'binaryprefix:King')" }
+
+disable 'przychodnia'
+drop 'przychodnia'

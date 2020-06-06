@@ -1,0 +1,135 @@
+-- Kamil Kowalewski 216806 --
+
+OCENA: 17PKT / 28PKT - NIE JEST IDEALNIE ALE JAK TO MÓWIĄ "ZDANE, WYJ***NE"
+
+------------------------------------------------------------------------------------------
+Zadanie 1 - HDFS
+
+hdfs dfs -mkdir kolokwium/216806
+hdfs dfs -cp ./kolokwium/kolokwium.txt ./kolokwium/216806/kolokwium.txt
+hdfs dfs -ls -R ./kolokwium
+hdfs dfs -rm -r ./kolokwium
+
+
+------------------------------------------------------------------------------------------
+Zadanie 2 - PIG
+
+people = load '/user/cloudera/People.csv'
+    USING PigStorage(',')
+    as (playerID:chararray,birthYear:int,birthMonth:int,birthDay:int,
+    birthCountry:chararray,birthState:chararray,birthCity:chararray,deathYear:int,
+    deathMonth:int,deathDay:int,deathCountry:chararray,deathState:chararray,
+    deathCity:chararray,nameFirst:chararray,nameLast:chararray,nameGiven:chararray,weight:int,
+    height:int,bats:chararray,throws:chararray,debut:chararray,finalGame:chararray,retroID:chararray,bbrefID:chararray);
+
+
+players = load '/user/cloudera/AwardsPlayers.csv'
+    USING PigStorage(',')
+    as (playerID:chararray,awardID:chararray,
+    yearID:int,lgID:chararray,tie:chararray,notes:chararray);
+
+filtered_players = filter players by yearID >= 1970 AND yearID <= 2010;
+filtered_players = filter filtered_players by awardID == 'Silver Slugger';
+grouped_players = group filtered_players by playerID;
+counted_awards = foreach grouped_players generate group, count(filtered_players);
+counted_awards = foreach grouped_players generate group, COUNT(filtered_players);
+
+
+------------------------------------------------------------------------------------------
+Zadanie 3 - HIVE
+
+CREATE DATABASE IF NOT EXISTS a216806;
+
+CREATE TABLE a216806.awardsplayers (
+    playerid STRING,
+    awardid  STRING,
+    yearid   INT,
+    lgid     STRING,
+    tie      STRING,
+    notes    STRING
+)
+    ROW FORMAT DELIMITED
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+    TBLPROPERTIES ("skip.header.line.count" = "1");
+
+LOAD DATA INPATH '/user/cloudera/AwardsPlayers.csv' OVERWRITE INTO TABLE a216806.awardsplayers;
+
+CREATE TABLE a216806.people (
+    playerid     STRING,
+    birthyear    INT,
+    birthmonth   INT,
+    birthday     INT,
+    birthcountry STRING,
+    birthstate   STRING,
+    birthcity    STRING,
+    deathyear    INT,
+    deathmonth   INT,
+    deathday     INT,
+    deathcountry STRING,
+    deathstate   STRING,
+    deathcity    STRING,
+    namefirst    STRING,
+    namelast     STRING,
+    namegiven    STRING,
+    weight       INT,
+    height       INT,
+    bats         STRING,
+    throws       STRING,
+    debut        STRING,
+    finalgame    STRING,
+    retroid      STRING,
+    bbrefid      STRING
+
+)
+    ROW FORMAT DELIMITED
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+    TBLPROPERTIES ("skip.header.line.count" = "1");
+
+LOAD DATA INPATH '/user/cloudera/People.csv' OVERWRITE INTO TABLE a216806.people;
+
+
+DROP DATABASE a216806 CASCADE;
+
+
+------------------------------------------------------------------------------------------
+Zadanie 4 - HBASE
+
+create 'przychodnia', 'fullname', 'birthday', 'visit'
+
+put 'przychodnia', 'r1', 'fullname:name', 'Rudolf'
+put 'przychodnia', 'r1', 'fullname:surname', 'Solan'
+put 'przychodnia', 'r1', 'birthday:day', '13'
+put 'przychodnia', 'r1', 'birthday:month', '5'
+put 'przychodnia', 'r1', 'birthday:year', '1994'
+put 'przychodnia', 'r1', 'visit:day', '31.07.2020'
+put 'przychodnia', 'r1', 'visit:hour', '12:00'
+
+put 'przychodnia', 'r2', 'fullname:name', 'Scott'
+put 'przychodnia', 'r2', 'fullname:surname', 'Nelson'
+put 'przychodnia', 'r2', 'birthday:day', ''
+put 'przychodnia', 'r2', 'birthday:month', ''
+put 'przychodnia', 'r2', 'birthday:year', ''
+put 'przychodnia', 'r2', 'visit:day', '15.07.2020'
+put 'przychodnia', 'r2', 'visit:hour', '12:00'
+
+put 'przychodnia', 'r3', 'fullname:name', 'Ana'
+put 'przychodnia', 'r3', 'fullname:surname', 'Lawrance'
+put 'przychodnia', 'r3', 'birthday:day', '28'
+put 'przychodnia', 'r3', 'birthday:month', '3'
+put 'przychodnia', 'r3', 'birthday:year', '1977'
+put 'przychodnia', 'r3', 'visit:day', '31.07.2020'
+put 'przychodnia', 'r3', 'visit:hour', '8:00'
+
+
+alter "przychodnia", NAME => "fullname", VERSIONS => 3
+put "przychodnia", "r3", "fullname:surname", "Dawson"
+
+get 'przychodnia', 'r3', {COLUMN => 'fullname', VERSIONS => 1}
+
+scan 'przychodnia', { FILTER => "SingleColumnValueFilter('visit', 'hour', =, 'binaryprefix:12:00')" }
+
+
+alter 'przychodnia', 'delete' => 'birthday'
+

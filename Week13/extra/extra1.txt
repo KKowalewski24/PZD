@@ -1,0 +1,301 @@
+--------------------------------------------------------
+1. Zdefiniuj katalog MOJE_PRACE (polecenie mkdir)
+	hdfs dfs -mkdir MOJE_PRACE3
+2. Umieść w katalogu pusty plik test1.txt (polecenie put)
+	hdfs dfs -put test3.txt /user/cloudera/MOJE_PRACE3
+3. Zdefiniuj w tym katalogu dwa podlatalogi: KSIAZKI i INNE
+	hdfs dfs -mkdir /user/cloudera/MOJE_PRACE3/KSIAZKI
+	hdfs dfs -mkdir /user/cloudera/MOJE_PRACE3/INNE
+4. Wyświetl zawartość swojego katalogu (polecenie ls)
+	hdfs dfs -ls /user/cloudera/MOJE_PRACE3
+5. Wyświetl zawartość katalogu i wszystkich jego podkatalogów (polecenie lsr).
+	hdfs dfs -ls -R /user/cloudera/MOJE_PRACE3
+6. Usuń plik test1.txt (polecenie rm).
+	hdfs dfs -rm /user/cloudera/MOJE_PRACE3/test3.txt
+7. Utwórz plik tekstowy o dowolnej zawartości i umieść go w katalogu MOJE_PRACE, a następnie skopiuj go również do podkatalogu INNE (polecenie cp).
+	hdfs dfs -put test3.txt /user/cloudera/MOJE_PRACE3
+	hdfs dfs -cp /user/cloudera/MOJE_PRACE3/test3.txt /user/cloudera/MOJE_PRACE3/INNE
+8. Wyświetl zawartość dodanego przed chwila pliku (polecenie cat).
+	hdfs dfs -cat /user/cloudera/MOJE_PRACE3/test3.txt
+9. Pobierz plik do Twojego katalogu domowego (polecenie get).
+	hdfs dfs -get /user/cloudera/MOJE_PRACE3/test3.txt ~
+10. CopyFromLocal
+	hdfs dfs -copyFromLocal test3.txt /user/cloudera/MOJE_PRACE3/KSIAZKI
+
+
+Zad 1
+hdfs dfs -mkdir output
+hdfs dfs -ls output
+hdfs dfs -cat abc.txt
+touch aaa.txt
+hdfs dfs -copyFromLocal aaa.txt input
+hdfs dfs -rm -r input
+
+--------------------------------------------------------
+Zad 2
+data = load '/user/cloudera/yob1880.txt'
+    USING PigStorage(',')
+    as (firstname:chararray, sex:chararray,quantity:int);
+
+grouped = group data by sex;
+res = foreach grouped {
+    sorted = order data by quantity desc;
+    top = limit sorted 3;
+    generate group, flatten(top.firstname);
+}
+dump res;
+
+-----------------
+
+data = load '/user/cloudera/health.csv'
+    USING PigStorage(',')
+    as (financial_year:chararray,
+    state:chararray,
+    area_of_expenditure:chararray,
+    broad_source_of_funding:chararray,
+    detailed_source_of_funding:chararray,
+    real_expenditure_millions:int);
+
+filtered = filter data by financial_year == '2010-11';
+grouped = group filtered by area_of_expenditure;
+summed = foreach grouped generate group, sum(filtered.real_expenditure_millions) as sum1;
+ordered = order summed by sum1 desc;
+result = limit ordered 5;
+store result into './resout';
+
+-----------------
+
+data = load '/user/cloudera/health.csv'
+    USING PigStorage(',')
+    as (financial_year:chararray,
+            state:chararray,
+            area_of_expenditure:chararray,
+            broad_source_of_funding:chararray,
+            detailed_source_of_funding:chararray,
+            real_expenditure_millions:int);
+
+grouped = group data by area_of_expenditure;
+result = foreach grouped {
+    sorted = order data by real_expenditure_millions desc;
+    top = limit sorted 1;
+    generate group, flatten(top.state), max(data.real_expenditure_millions);
+}
+
+store result into './resout';
+
+--------------------------------------------------------
+Zad 3
+Załaduj dane z pliku Salaries.csv do tabeli bazy Hive w formacie ORC (1 punkt)
+Podaj 5 identyfikatorów zawodników, którzy na przestrzeni prowadzenia
+statystyk zarobili najwięcej. (2 punkty)
+Który z tych 5 zawodników miał najwyższe wynagrodzenie
+roczne i w którym roku? (2 punkty)
+
+CREATE DATABASE IF NOT EXISTS baseball;
+
+CREATE TABLE baseball.salary (
+    yearid   INT,
+    teamid   STRING,
+    lgid     STRING,
+    playerid STRING,
+    salary   DECIMAL(10, 2)
+)
+    ROW FORMAT DELIMITED
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+    TBLPROPERTIES ("skip.header.line.count" = "1");
+
+LOAD DATA INPATH '/user/cloudera/Salaries.csv' OVERWRITE INTO TABLE baseball.salary;
+
+SELECT playerid, sum(salary) AS summed
+FROM baseball.salary
+GROUP BY playerid
+ORDER BY summed DESC
+LIMIT 5;
+
+SELECT a.playerid, a.salary, a.yearid
+FROM baseball.salary a
+         INNER JOIN (
+                        SELECT playerid, SUM(salary) AS summed1
+                        FROM baseball.salary
+                        GROUP BY playerid
+                        ORDER BY summed1 DESC
+                        LIMIT 5
+                    ) b ON a.playerid = b.playerid
+ORDER BY a.salary DESC
+LIMIT 1;
+
+
+DROP DATABASE baseball CASCADE;
+
+
+
+Załaduj do bazy Hive dane z plików AwordsManagers.csv, Managers.csv i Master.csv (1 punkt)
+Podaj imię i nazwisko najbardziej utytułowanego managera i liczbę nagród które
+dostał (dowolnych nagród we wszystkich ligach) (2 punkty)
+Dla tego managera podaj jego łączną liczbę meczów, liczbę zwycięstw i porażek (2 punkty)
+
+
+CREATE DATABASE IF NOT EXISTS baseball;
+
+CREATE TABLE baseball.awardsmanagers (
+    playerid STRING,
+    awardid  STRING,
+    yearid   INT,
+    lgid     STRING,
+    tie      STRING,
+    notes    STRING
+)
+    ROW FORMAT DELIMITED
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+    TBLPROPERTIES ("skip.header.line.count" = "1");
+
+LOAD DATA INPATH '/user/cloudera/AwardsManagers.csv' OVERWRITE INTO TABLE baseball.awardsmanagers;
+
+CREATE TABLE baseball.managers (
+    playerid STRING,
+    yearid   INT,
+    teamid   STRING,
+    lgid     STRING,
+    inseason INT,
+    g        INT,
+    w        INT,
+    l        INT,
+    rank     INT,
+    plyrmgr  STRING
+)
+    ROW FORMAT DELIMITED
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+    TBLPROPERTIES ("skip.header.line.count" = "1");
+
+LOAD DATA INPATH '/user/cloudera/Managers.csv' OVERWRITE INTO TABLE baseball.managers;
+
+CREATE TABLE baseball.master (
+    playerid     STRING,
+    birthyear    INT,
+    birthmonth   INT,
+    birthday     INT,
+    birthcountry STRING,
+    birthstate   STRING,
+    birthcity    STRING,
+    deathyear    INT,
+    deathmonth   INT,
+    deathday     INT,
+    deathcountry STRING,
+    deathstate   STRING,
+    deathcity    STRING,
+    namefirst    STRING,
+    namelast     STRING,
+    namegiven    STRING,
+    weight       INT,
+    height       INT,
+    bats         STRING,
+    throws       STRING,
+    debut        STRING,
+    finalgame    STRING,
+    retroid      STRING,
+    bbrefid      STRING
+)
+    ROW FORMAT DELIMITED
+        FIELDS TERMINATED BY ','
+        LINES TERMINATED BY '\n'
+    TBLPROPERTIES ("skip.header.line.count" = "1");
+
+LOAD DATA INPATH '/user/cloudera/Master.csv' OVERWRITE INTO TABLE baseball.master;
+
+
+SELECT mas.namefirst, mas.namelast
+FROM baseball.master mas
+         INNER JOIN (
+                        SELECT playerid, count(*) AS sum1
+                        FROM baseball.awardsmanagers
+                        GROUP BY playerid
+                        ORDER BY sum1 DESC
+                        LIMIT 1
+                    ) inn_jo ON mas.playerid = inn_jo.playerid;
+
+SELECT mana.playerid, sum(mana.g), sum(mana.w), sum(mana.l)
+FROM baseball.managers mana
+         INNER JOIN (
+                        SELECT playerid, count(*) AS sum2
+                        FROM baseball.awardsmanagers
+                        GROUP BY playerid
+                        ORDER BY sum2 DESC
+                        LIMIT 1
+                    ) inn_jo_2 ON mana.playerid = inn_jo_2.playerid
+GROUP BY mana.playerid;
+
+DROP DATABASE baseball CASCADE;
+
+
+--------------------------------------------------------
+Zad 4
+
+create 'nazwa_tabeli','nazwa_rodziny_1', ['nazwa_rodziny_n']
+put 'nazwa tabeli', 'identyfikator wiersza', 'nazwa rodziny: nazwa kolumny', 'wartosc'
+
+
+create 'serwis', 'produkt', 'klient', 'zgloszenie'
+
+put 'serwis', 'row1', 'produkt:id_produktu', 'P100'
+put 'serwis', 'row1', 'produkt:opis_produktu', 'pralka firmy x'
+put 'serwis', 'row1', 'klient:id_klienta', '00001'
+put 'serwis', 'row1', 'klient:nazwisko', 'Iksinski'
+put 'serwis', 'row1', 'klient:dane_kontaktowe', 'ul. kontaktowa  1'
+put 'serwis', 'row1', 'zgloszenie:id_zgloszenia', 'P100_0001'
+put 'serwis', 'row1', 'zgloszenie:opis_problemu', 'nie wiruje'
+put 'serwis', 'row1', 'zgloszenie:status', 'przyjete'
+
+put 'serwis', 'row2', 'produkt:id_produktu', 'P200'
+put 'serwis', 'row2', 'produkt:opis_produktu', 'pralka firmy y'
+put 'serwis', 'row2', 'klient:id_klienta', '00002'
+put 'serwis', 'row2', 'klient:nazwisko', 'Nowinski'
+put 'serwis', 'row2', 'klient:dane_kontaktowe', 'ul. Nieznana'
+put 'serwis', 'row2', 'zgloszenie:id_zgloszenia', 'L100_00002'
+put 'serwis', 'row2', 'zgloszenie:opis_problemu', 'nie chodzi'
+put 'serwis', 'row2', 'zgloszenie:status', 'zrealizowane'
+
+put 'serwis', 'row3', 'produkt:id_produktu', 'P200'
+put 'serwis', 'row3', 'produkt:opis_produktu', 'Pralka firmy Z'
+put 'serwis', 'row3', 'klient:id_klienta', '00003'
+put 'serwis', 'row3', 'klient:nazwisko', 'Trzeciak'
+put 'serwis', 'row3', 'klient:dane_kontaktowe', 'ul. Telefoniczna'
+put 'serwis', 'row3', 'zgloszenie:id_zgloszenia', 'P200_00003'
+put 'serwis', 'row3', 'zgloszenie:opis_problemu', 'nie pobiera wody'
+put 'serwis', 'row3', 'zgloszenie:status', 'w realizacji'
+
+
+* Wyświetl dane z jednego (całego) wiersza.
+get 'serwis', 'row1'
+
+* Wyświetl numer i status zgłoszenia dla jednego zgłoszenia.
+get 'serwis', 'row1', 'zgloszenie:id_zgloszenia', 'zgloszenie:status'
+
+* Wyświetl wszystkie dane z tabeli.
+scan 'serwis'
+
+* Wyświetl identyfikatory i opisy pierwszych dwóch produktów.
+scan 'serwis', {COLUMN => ['produkt:id_produktu','produkt:opis_produktu'], LIMIT => 2}
+
+
+UPDATE WARTOSCI
+
+alter "serwis", NAME => "zgloszenie", VERSIONS => 3
+put "serwis", "row1", "zgloszenie:status", "no juz po sprawie"
+
+* tylko nową wartość,
+get 'serwis', 'row1', 'zgloszenie:status'
+
+* obie wartości.
+get 'serwis', 'row1', {COLUMN => 'zgloszenie:status', VERSIONS => 2}
+
+* Usuń jedną z rodzin kolumn.
+alter 'serwis', 'delete' => 'klient'
+
+* Usuń całą tabelę.
+disable 'serwis'
+drop 'serwis'
+
+--------------------------------------------------------

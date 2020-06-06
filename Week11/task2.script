@@ -1,0 +1,63 @@
+(1) Wskaż przynajmniej jedną zaletę stosowania bazy HBase.
+- Możliwość przechowywania dużych zbiorów danych
+- O wiele szybsze przetwarzanie danych niż w tradycyjnej bazie danych
+
+
+(2) Wskaż przynajmniej jedną wadę stosowania bazy HBase.
+- Brak wsparcia dla transakcji
+- Sortowanie tylko po kluczu
+
+
+(3) Czy nowe kolumny w HBase mogą być definiowane w czasie pracy z bazą i wstawiania danych, czy też muszą być zdefiniowane wcześniej (predefiniowane)?
+
+Można, robiliśmy coś takiego w ćwiczeniu numer 1, tydzień 11
+
+hbase(main):031:0> alter "Books", NAME => "release"
+Updating all regions with the new schema...
+0/1 regions updated.
+1/1 regions updated.
+Done.
+0 row(s) in 3.1220 seconds
+
+
+(4) Gdzie są przechowywane pliki bazy HBase (czyli HFile / HLog / WAL)? Jak wygląda struktura przechowywania?
+HFile - jest to format do przechowywania tabel w HDFS, przechowuje on klucz każdego wiersza,
+jest to format blokowo indexowy - klucz i blok są przechowywane oddzialnie i przy operacji
+odczytu na podstawie klucza jest odnajdywany blok
+
+HLog - są to pliki, które przechowują aktualizacje tabel w HBase - dzieki temu jest
+wersjonowanie, z którego korzystaliśmy w ćwiczeniu nr1
+
+WAL(Write Ahead Log) - zapisywane są tam wszystkie edycje HLog
+
+
+(5) Jakim poleceniem powłoki sprawdzisz, jako kto jesteś zalogowany?
+
+polecenie whoami - zwraca informacje o aktualnym użytkowniku HBase
+
+
+(6) Czym różni się polecenie get od scan ?
+
+get zwraca pojedyńczy wiersz natomiast scan zwraca zbiór wierszy
+
+
+(7) Jakim poleceniem wstawisz nową wartość do kolumny?
+
+put "Books", "row1", "frequent:title", "aaa"
+
+
+(8) Jakim poleceniem zmodyfikujesz wartość w kolumnie?
+
+put "Books", "row1", "rare:pages", "888"
+
+
+(9) Jakim poleceniem usuniesz rodzinę kolumn?
+
+alter "Books", "delete" => "release"
+
+
+(10) W jaki sposób należy usunąć całą tabelę?
+
+Najpierw trzeba zrobić disable a później dopiero drop, np.
+disable "Books"
+drop "Books"
